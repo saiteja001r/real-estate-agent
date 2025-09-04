@@ -9,6 +9,7 @@ load_dotenv()
 
 api_key = os.getenv("GROQ_API_KEY")
 
+
 class NoticEmailExtract(BaseModel):
     date_of_notice_str: str | None = Field(
         default=None,
@@ -26,7 +27,7 @@ class NoticEmailExtract(BaseModel):
         default=None,
         description="""the phone number of the entity sending the notice 
         (if present in the message)""",
-    ) 
+    )
     entity_email: str | None = Field(
         default=None,
         description="""the email of the entity sending the notice
@@ -64,7 +65,6 @@ class NoticEmailExtract(BaseModel):
         (if any)""",
     )
 
-
     @staticmethod
     def _convert_string_to_date(date_str: str | None) -> date | None:
         try:
@@ -72,7 +72,7 @@ class NoticEmailExtract(BaseModel):
         except Exception as e:
             print(e)
             return None
-        
+    
     @computed_field
     @property
     def date_of_notice(self) -> date | None:
@@ -87,28 +87,28 @@ class NoticEmailExtract(BaseModel):
 info_parse_prompt = ChatPromptTemplate.from_messages(
     [
         (
-        "system",
-        """
+            "system",
+            """
         parse the date of notice, sending entity name, sending entity phone,
         sending entity email, project id, site location,
-        violation type, required changes, compliance deadline, and 
+        violation type, required changes, compliance deadline, and
         maximum potential fine from the message. If any of the fields aren't
-        present, don't populate them. Try to cast dates into the YY--mm--dd format. Don't populate fields if they're not
-        present in the message
-        
-        Here's the notice message:
+        present, don't populate them.
+        Try to cast dates into the YY--mm--dd format.
+        Don't populate fields if they're not
+        present in the message Here's the notice message:
         
         {message}
-        """, 
+            """,
         )
     ]
 )
 
-notice_parser_model = init_chat_model("llama-3.1-8b-instant", model_provider="groq", api_key=api_key)
+notice_parser_model = init_chat_model(
+    "llama-3.1-8b-instant",
+    model_provider="groq", api_key=api_key)
 
 NOTICE_PARSER_CHAIN = (
     info_parse_prompt
     | notice_parser_model.with_structured_output(NoticEmailExtract)
 )
-
-
