@@ -10,7 +10,7 @@ load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
 
 
-class NoticEmailExtract(BaseModel):
+class NoticeEmailExtract(BaseModel):
     date_of_notice_str: str | None = Field(
         default=None,
         exclude=True,
@@ -110,5 +110,5 @@ notice_parser_model = init_chat_model(
 
 NOTICE_PARSER_CHAIN = (
     info_parse_prompt
-    | notice_parser_model.with_structured_output(NoticEmailExtract)
+    | notice_parser_model.with_structured_output(NoticeEmailExtract)
 )

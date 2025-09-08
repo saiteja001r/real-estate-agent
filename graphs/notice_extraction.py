@@ -1,14 +1,15 @@
 from typing import TypedDict
 from chains.escalation_check import ESCALATION_CHECK_CHAIN
-from chains.notice_extraction import NOTICE_PARSER_CHAIN, NoticEmailExtract
+from chains.notice_extraction import NOTICE_PARSER_CHAIN, NoticeEmailExtract
 from langgraph.graph import END, START, StateGraph
 from pydantic import EmailStr
+from utils.graph_utils import create_legal_ticket, send_escalation_email
 from utils.logging_config import LOGGER
 
 
 class GraphState(TypedDict):
     notice_message: str
-    notice_email_extract: NoticEmailExtract | None
+    notice_email_extract: NoticeEmailExtract | None
     escalation_text_criteria: str
     escalation_dollar_criteria: float
     requires_escalation: bool
@@ -50,6 +51,25 @@ def check_escalation_status_node(state: GraphState) -> GraphState:
         state["requires_escalation"] = False
 
     return
+
+
+def send_escalation_email_node(state: GraphState) -> GraphState:
+    """Send an escalation email"""
+    send_escalation_email(
+        notice_email_extract=state["notice_email_extract"],
+        escalation_emails=state["escalation_emails"]
+    )
+    return state
+
+
+def create_legal_ticket_node(state: GraphState) -> GraphState:
+    """Node to create a legal ticket"""
+    follow_up = create_legal_ticket(
+        current_follow_ups=state.get("follow_ups"),
+        notice_email_extract=state["notice_email_extract"]
+    )
+    state["current_follow_up"] = follow_up
+    return state
 
 
 workflow.add_node("parse_notice_message", parse_notice_message_node)
