@@ -22,7 +22,7 @@ escalation_prompt = ChatPromptTemplate.from_messages(
             """
             Determine whether the following notice received
             from a regulatory body requires immediate escalation.
-            Immediate escalation is required when {escalation_criteria}.add()
+            Immediate escalation is required when {escalation_criteria}.
 
             Here's the notice message:
 
@@ -33,8 +33,7 @@ escalation_prompt = ChatPromptTemplate.from_messages(
 )
 
 escalation_check_model = init_chat_model(
-    "llama-3.1-8b-instant",
-    model_provider="groq", api_key=api_key)
+    "llama3-8b-8192", model_provider="groq", api_key=api_key)
 
 ESCALATION_CHECK_CHAIN = (
     escalation_prompt

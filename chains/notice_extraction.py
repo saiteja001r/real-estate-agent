@@ -105,8 +105,7 @@ info_parse_prompt = ChatPromptTemplate.from_messages(
 )
 
 notice_parser_model = init_chat_model(
-    "llama-3.1-8b-instant",
-    model_provider="groq", api_key=api_key)
+    "llama3-8b-8192", model_provider="groq", api_key=api_key)
 
 NOTICE_PARSER_CHAIN = (
     info_parse_prompt
